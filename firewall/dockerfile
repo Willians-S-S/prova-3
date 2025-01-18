@@ -1,0 +1,20 @@
+# Usar a imagem base do Ubuntu
+FROM ubuntu:latest
+
+# Instalar dependências
+RUN apt-get update && \
+    apt-get install -y isc-dhcp-server iptables && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Habilitar o encaminhamento de pacotes
+RUN sysctl -w net.ipv4.ip_forward=1
+
+# Copiar o arquivo de configuração do DHCP
+COPY dhcpd.conf /etc/dhcp/dhcpd.conf
+
+RUN iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+RUN dhcpd -cf /etc/dhcp/dhcpd.conf eth0 eth1
+
+# Comando padrão para configurar iptables, iniciar o DHCP e manter o contêiner em execução
+CMD ["sh", "-c", "sleep infinity"]

@@ -1,0 +1,102 @@
+version: '3.8'
+
+services:
+  # Sub-rede A
+  web_a:
+    build:
+      context: ./subrede_a/web_a
+    container_name: web_a
+    networks:
+      subnet_a:
+
+  dns_a:
+    build:
+      context: ./subrede_a/dns_a
+    container_name: dns_a
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.99
+
+  host_a1:
+    build:
+      context: ./subrede_a/host1
+    container_name: host_a1
+    networks:
+      subnet_a:
+    dns:
+      - 10.0.0.99  # DNS fixo para dns_a
+    cap_add:
+      - NET_ADMIN  # Adicione esta linha
+    # command: >
+    #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
+
+  host_a2:
+    build:
+      context: ./subrede_a/host2
+    container_name: host_a2
+    networks:
+      subnet_a:
+    dns:
+      - 10.0.0.99  # DNS fixo para dns_a
+
+  # Sub-rede B
+  web_b:
+    build:
+      context: ./subrede_b/web_b
+    container_name: web_b
+    networks:
+      subnet_b:
+
+  dns_b:
+    build:
+      context: ./subrede_b/dns_b
+    container_name: dns_b
+    networks:
+      subnet_b:
+        ipv4_address: 20.0.0.99
+
+  host_b1:
+    build:
+      context: ./subrede_b/host1
+    container_name: host_b1
+    networks:
+      subnet_b:
+    dns:
+      - 20.0.0.99  # DNS fixo para dns_b
+    cap_add:
+      - NET_ADMIN 
+    # command: >
+    #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
+
+  host_b2:
+    build:
+      context: ./subrede_b/host2
+    container_name: host_b2
+    networks:
+      subnet_b:
+    dns:
+      - 20.0.0.99  # DNS fixo para dns_b
+
+  firewall:
+    build: ./firewall  # Caminho para o diretório que contém o Dockerfile
+    container_name: firewall
+    networks:
+      subnet_a:
+      subnet_b:
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - ./firewall/dhcpd.conf:/etc/dhcp/dhcpd.conf  # Mantenha o volume para permitir alterações dinâmicas
+
+networks:
+  subnet_a:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+
+  subnet_b:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 20.0.0.0/24

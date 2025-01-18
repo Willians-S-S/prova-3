@@ -1,0 +1,12 @@
+FROM ubuntu:20.04
+
+RUN apt-get update && \
+    apt-get install -y bind9 bind9utils bind9-doc dnsutils && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY ./named.conf.local /etc/bind/named.conf.local
+COPY ./db.empresa-a.com /etc/bind/db.empresa-a.com
+
+
+CMD ["named", "-g"]

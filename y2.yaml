@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  # Sub-rede A
+
+  web_a:
+    build:
+      context: ./subrede_a/web_a
+    container_name: web_a
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.2
+    dns:
+      - 10.0.0.3
+
+  dns_a:
+    build:
+      context: ./subrede_a/dns_a
+    container_name: dns_a
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.3
+
+  host_a1:
+    build:
+      context: ./subrede_a/host1
+    container_name: host_a1
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.4
+    dns:
+      - 10.0.0.3
+
+  host_a2:
+    build:
+      context: ./subrede_a/host2
+    container_name: host_a2
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.5
+    dns:
+      - 10.0.0.3
+
+
+  # Sub-rede B
+
+
+  web_b:
+    build:
+      context: ./subrede_b/web_b
+    container_name: web_b
+    networks:
+      subnet_b:
+        ipv4_address: 20.0.0.2
+
+  dns_b:
+    build:
+      context: ./subrede_b/dns_b
+    container_name: dns_b
+    networks:
+      subnet_b:
+        ipv4_address: 20.0.0.3
+
+  host_b1:
+    build:
+      context: ./subrede_b/host1
+    container_name: host_b1
+    networks:
+      subnet_b:
+        ipv4_address: 20.0.0.4
+    dns: 
+      - 20.0.0.3
+
+  host_b2:
+    build:
+      context: ./subrede_b/host2
+    container_name: host_b2
+    networks:
+      subnet_b:
+        ipv4_address: 20.0.0.5
+    dns: 
+      - 20.0.0.3
+
+  # Firewall/Router
+  firewall:
+    image: ubuntu
+    container_name: firewall
+    networks:
+      subnet_a:
+        ipv4_address: 10.0.0.254
+      subnet_b:
+        ipv4_address: 20.0.0.254
+    cap_add:
+      - NET_ADMIN
+
+networks:
+  subnet_a:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.0.0.0/24
+          gateway: 10.0.0.254
+  subnet_b:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 20.0.0.0/24
+          gateway: 20.0.0.254
+ 
