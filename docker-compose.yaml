@@ -6,27 +6,33 @@ services:
     build:
       context: ./subrede_a/web_a
     container_name: web_a
+    hostname: web_a  # Hostname para o container
     networks:
       subnet_a:
+    privileged: true  # Adicionado aqui
 
   dns_a:
     build:
       context: ./subrede_a/dns_a
     container_name: dns_a
+    hostname: dns_a  # Hostname para o container
     networks:
       subnet_a:
         ipv4_address: 10.0.0.99
+    privileged: true  # Adicionado aqui
 
   host_a1:
     build:
       context: ./subrede_a/host1
     container_name: host_a1
+    hostname: host_a1  # Hostname para o container
     networks:
       subnet_a:
     dns:
       - 10.0.0.99  # DNS fixo para dns_a
     cap_add:
       - NET_ADMIN  # Adicione esta linha
+    privileged: true  # Adicionado aqui
     # command: >
     #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
 
@@ -34,37 +40,45 @@ services:
     build:
       context: ./subrede_a/host2
     container_name: host_a2
+    hostname: host_a2  # Hostname para o container
     networks:
       subnet_a:
     dns:
       - 10.0.0.99  # DNS fixo para dns_a
+    privileged: true  # Adicionado aqui
 
   # Sub-rede B
   web_b:
     build:
       context: ./subrede_b/web_b
     container_name: web_b
+    hostname: web_b  # Hostname para o container
     networks:
       subnet_b:
+    privileged: true  # Adicionado aqui
 
   dns_b:
     build:
       context: ./subrede_b/dns_b
     container_name: dns_b
+    hostname: dns_b  # Hostname para o container
     networks:
       subnet_b:
         ipv4_address: 20.0.0.99
+    privileged: true  # Adicionado aqui
 
   host_b1:
     build:
       context: ./subrede_b/host1
     container_name: host_b1
+    hostname: host_b1  # Hostname para o container
     networks:
       subnet_b:
     dns:
       - 20.0.0.99  # DNS fixo para dns_b
     cap_add:
       - NET_ADMIN 
+    privileged: true  # Adicionado aqui
     # command: >
     #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
 
@@ -72,14 +86,17 @@ services:
     build:
       context: ./subrede_b/host2
     container_name: host_b2
+    hostname: host_b2  # Hostname para o container
     networks:
       subnet_b:
     dns:
       - 20.0.0.99  # DNS fixo para dns_b
+    privileged: true  # Adicionado aqui
 
   firewall:
     build: ./firewall  # Caminho para o diretório que contém o Dockerfile
     container_name: firewall
+    hostname: firewall  # Hostname para o container
     networks:
       subnet_a:
       subnet_b:
@@ -87,6 +104,7 @@ services:
       - NET_ADMIN
     volumes:
       - ./firewall/dhcpd.conf:/etc/dhcp/dhcpd.conf  # Mantenha o volume para permitir alterações dinâmicas
+    privileged: true  # Adicionado aqui
 
 networks:
   subnet_a:
