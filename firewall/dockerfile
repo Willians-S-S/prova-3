@@ -1,20 +1,23 @@
-# Usar a imagem base do Ubuntu
+# Base da imagem
 FROM ubuntu:latest
 
-# Instalar dependências
+# Atualiza o sistema e instala o iptables
 RUN apt-get update && \
-    apt-get install -y isc-dhcp-server iptables && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y iptables iproute2 iputils-ping isc-dhcp-server && \
+    apt-get clean
 
-# Habilitar o encaminhamento de pacotes
+# Habilita o roteamento de pacotes (IP Forwarding)
 RUN sysctl -w net.ipv4.ip_forward=1
 
-# Copiar o arquivo de configuração do DHCP
+# Copia o script de configuração do firewall para o container
+# COPY iptables-rules.sh /usr/local/bin/iptables-rules.sh
+
+# Garante permissão de execução para o script
+# RUN chmod +x /usr/local/bin/iptables-rules.sh
 COPY dhcpd.conf /etc/dhcp/dhcpd.conf
 
-RUN iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE && iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
-RUN dhcpd -cf /etc/dhcp/dhcpd.conf eth0 eth1
+COPY isc-dhcp-server /etc/default/isc-dhcp-server
 
-# Comando padrão para configurar iptables, iniciar o DHCP e manter o contêiner em execução
-CMD ["sh", "-c", "sleep infinity"]
+# Executa o script e mantém o container ativo
+# CMD /bin/bash -c "/usr/local/bin/iptables-rules.sh && tail -f /dev/null"
+CMD ["sh", "-c", "rm -f /var/run/dhcpd.pid && service isc-dhcp-server start && tail -f /dev/null"]
