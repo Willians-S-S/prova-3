@@ -30,8 +30,6 @@ services:
     cap_add:
       - NET_ADMIN  
     privileged: true  
-    # command: >
-    #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
 
   host_a2:
     build:
@@ -71,8 +69,6 @@ services:
     cap_add:
       - NET_ADMIN 
     privileged: true  
-    # command: >
-    #   bash -c "ip route add 10.0.0.0/24 via 20.0.0.1 && /bin/bash"
 
   host_b2:
     build:
@@ -84,7 +80,7 @@ services:
     privileged: true  
 
   firewall:
-    build: ./firewall  # Caminho para o diretório que contém o Dockerfile
+    build: ./firewall  
     container_name: firewall
     hostname: firewall  
     networks:
@@ -93,9 +89,10 @@ services:
     cap_add:
       - NET_ADMIN
     volumes:
-      - ./firewall/dhcpd.conf:/etc/dhcp/dhcpd.conf  # Mantenha o volume para permitir alterações dinâmicas
+      - ./firewall/dhcpd.conf:/etc/dhcp/dhcpd.conf  
     privileged: true  
 
+# Sub-Redes
 networks:
   subnet_a:
     driver: bridge

@@ -3,7 +3,7 @@ FROM ubuntu:latest
 
 # Atualiza o sistema e instala o iptables
 RUN apt-get update && \
-    apt-get install -y iptables iproute2 iputils-ping isc-dhcp-server && \
+    apt-get install -y iptables iproute2 iputils-ping isc-dhcp-server vim tcpdump && \
     apt-get clean
 
 # Habilita o roteamento de pacotes (IP Forwarding)
@@ -14,5 +14,4 @@ COPY dhcpd.conf /etc/dhcp/dhcpd.conf
 COPY isc-dhcp-server /etc/default/isc-dhcp-server
 
 # Executa o script e mantém o container ativo
-# CMD ["sh", "-c", "rm -f /var/run/dhcpd.pid && service isc-dhcp-server start && tail -f /dev/null"]
 CMD ["sh", "-c", "sleep infinity"]
